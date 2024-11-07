@@ -1,0 +1,103 @@
+services:
+  infra-app-mysql:
+    image: mysql:8.0-oracle
+    command: --default-authentication-plugin=mysql_native_password
+    container_name: infra-app-mysql-container
+    ports:
+      - "57710:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: test
+      MYSQL_DATABASE: infra
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - ./mysql_data/infra-app.sql:/tmp/infra-app.sql
+      - ./mysql_data/dbs_init.sh:/docker-entrypoint-initdb.d/dbs_init.sh
+  infra-app-phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: infra-app-pma-container
+    platform: linux/amd64
+    ports:
+      - "9898:80"
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_USER=root
+      - PMA_PASSWORD=test
+      - PMA_HOSTS=infra-app-mysql-container
+    depends_on:
+      - infra-app-mysql
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins-container
+    ports:
+      - "8090:8080"       # Jenkins web interface
+      - "50000:50000"     # Jenkins agent port
+    volumes:
+      - jenkins_home:/var/jenkins_home # Persistent storage for Jenkins data
+  registry:
+    image: registry:2.8.2
+    container_name: registry-container
+    ports:
+      - "5000:5000" # Exposing port 5000 for the registry
+    environment:
+      REGISTRY_HTTP_HEADERS_Access-Control-Allow-Origin: '[http://localhost:5001]'
+      REGISTRY_HTTP_HEADERS_Access-Control-Allow-Methods: '[HEAD,GET,OPTIONS,DELETE]'
+      REGISTRY_HTTP_HEADERS_Access-Control-Allow-Credentials: '[true]'
+      REGISTRY_HTTP_HEADERS_Access-Control-Allow-Headers: '[Authorization,Accept,Cache-Control]'
+      REGISTRY_HTTP_HEADERS_Access-Control-Expose-Headers: '[Docker-Content-Digest]'
+    volumes:
+      - registry-data:/var/lib/registry # Persisting registry data
+  registry-ui:
+    image: joxit/docker-registry-ui:main
+    container_name: registry-ui-container
+    ports:
+      - "5001:80"
+    environment:
+      - SINGLE_REGISTRY=true
+      - REGISTRY_TITLE=Docker Registry UI
+      - DELETE_IMAGES=true
+      - SHOW_CONTENT_DIGEST=true
+      - NGINX_PROXY_PASS_URL=http://localhost:5000
+      - REGISTRY_URL=http://localhost:5000
+      - REGISTRY_AUTH=none
+      - SHOW_CATALOG_NB_TAGS=true
+      - CATALOG_MIN_BRANCHES=1
+      - CATALOG_MAX_BRANCHES=1
+      - TAGLIST_PAGE_SIZE=100
+      - REGISTRY_SECURED=false
+      - CATALOG_ELEMENTS_LIMIT=1000
+    depends_on:
+      - registry
+  k3d-kube:
+    image: rancher/k3s:v1.30.5-k3s1  # Use the latest K3s version or specify as needed
+    container_name: k3d-kube-container
+    restart: unless-stopped
+    privileged: true  # Necessary for running k3s
+    environment:
+      - K3S_KUBECONFIG_OUTPUT=/output/kubeconfig.yaml
+    volumes:
+      - kubeconfig:/output
+    command:
+      - server
+      - "--disable=traefik"  # Use --disable instead of --no-deploy
+  rancher:
+    image: rancher/rancher:latest
+    container_name: rancher-server-container
+    privileged: true  # Necessary for running k3s
+    ports:
+      - "7090:80"
+      - "443:443"  # For secure access
+    environment:
+      - CATTLE_SYSTEM_CATALOG=bundled  # Speed up the Rancher initialization by bundling system catalog
+      - CATTLE_BOOTSTRAP_PASSWORD=rancher-pass123
+    depends_on:
+      - k3d-kube
+    volumes:
+      - rancher-data:/var/lib/rancher  # Volume to persist Rancher data
+
+volumes:
+  jenkins_home:
+  registry-data:
+  kubeconfig:
+  rancher-data:
+
