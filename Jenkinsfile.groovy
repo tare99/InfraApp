@@ -19,15 +19,17 @@ pipeline {
     agent any
 
     stages {
-        steps {
-            script {
-                // Ensure the sudoers.d directory exists
-                sh """
+        stage('Setup Docker Permissions') {
+            steps {
+                script {
+                    // Ensure the sudoers.d directory exists
+                    sh """
         mkdir -p /etc/sudoers.d
         echo 'root ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/root
         sudo usermod -aG docker jenkins
         newgrp docker
         """
+                }
             }
         }
         stage("Determine Environment") {
