@@ -66,7 +66,6 @@ pipeline {
                 }
             }
             steps {
-                generateSettingsXml()
                 /**
                  * Remove current sports cached packages to force re-download from remote repo
                  * Required as Jenkins builds of those packages might overwrite versions by installing them into local repository
