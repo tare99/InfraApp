@@ -71,8 +71,8 @@ pipeline {
                  * Remove current sports cached packages to force re-download from remote repo
                  * Required as Jenkins builds of those packages might overwrite versions by installing them into local repository
                  */
-                sh "unset MAVEN_CONFIG && ./mvnw dependency:purge-local-repository -DmanualInclude=com.nsoft.sports"
-                sh "unset MAVEN_CONFIG && ./mvnw -U -P release -Dmaven.test.skip=true clean install -s .mvn/custom-settings.xml"
+                sh "unset MAVEN_CONFIG && ./mvnw dependency:purge-local-repository"
+                sh "unset MAVEN_CONFIG && ./mvnw -U -P release -Dmaven.test.skip=true clean install"
                 /**
                  * Jenkins user/group are 1000/1000
                  * We need to switch permissions after the build to make sure that jenkins workspace can read them
