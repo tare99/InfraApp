@@ -23,6 +23,7 @@ if [ "$1" = "up" ]; then
   echo "Jenkins is now running at http://localhost:8090"
   echo "Registry UI is now running at http://localhost:5001"
   echo "PMA is now running at http://localhost:9898"
+  echo "Rancher is now running at https://localhost:433"
 
 
 # Handle the "down" command
