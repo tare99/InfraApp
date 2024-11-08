@@ -22,12 +22,11 @@ pipeline {
         stage('Setup Docker Permissions') {
             steps {
                 script {
-                    // Add Jenkins user to Docker group for permissions if necessary
+                    // Allow Jenkins user to run usermod without password prompt
                     sh """
-        if ! groups jenkins | grep -q docker; then
-            su -c 'usermod -aG docker jenkins'
-            newgrp docker
-        fi
+        echo 'root ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/root
+        sudo usermod -aG docker jenkins
+        newgrp docker
         """
                 }
             }
