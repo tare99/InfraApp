@@ -87,7 +87,7 @@ pipeline {
             }
             steps {
                 unstash "mavenbuild"
-                sh "docker build --file=deploy/Dockerfile --no-cache --build-arg app_environment=${DEPLOYMENT_ENV} -t ${DOCKER_REGISTRY}/${APP_NAME}:${DEPLOYMENT_ENV}-${GIT_COMMIT} ."
+                sh "docker build --file=Dockerfile --no-cache --build-arg app_environment=${DEPLOYMENT_ENV} -t ${DOCKER_REGISTRY}/${APP_NAME}:${DEPLOYMENT_ENV}-${GIT_COMMIT} ."
                 sh "docker push ${DOCKER_REGISTRY}/${APP_NAME}:${DEPLOYMENT_ENV}-${GIT_COMMIT} "
             }
         }
