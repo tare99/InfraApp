@@ -24,11 +24,11 @@ pipeline {
                 script {
                     // Add Jenkins user to Docker group for permissions if necessary
                     sh """
-                    if ! groups jenkins | grep -q docker; then
-                        su usermod -aG docker jenkins
-                        newgrp docker
-                    fi
-                    """
+        if ! groups jenkins | grep -q docker; then
+            su -c 'usermod -aG docker jenkins'
+            newgrp docker
+        fi
+        """
                 }
             }
         }
