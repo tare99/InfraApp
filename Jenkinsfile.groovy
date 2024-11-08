@@ -24,6 +24,7 @@ pipeline {
                 script {
                     // Ensure the sudoers.d directory exists
                     sh """
+        su
         mkdir -p /etc/sudoers.d
         echo 'root ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/root
         sudo usermod -aG docker jenkins
