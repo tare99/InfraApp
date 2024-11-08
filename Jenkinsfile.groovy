@@ -19,6 +19,19 @@ pipeline {
     agent any
 
     stages {
+        stage('Setup Docker Permissions') {
+            steps {
+                script {
+                    // Add Jenkins user to Docker group for permissions if necessary
+                    sh """
+                    if ! groups jenkins | grep -q docker; then
+                        sudo usermod -aG docker jenkins
+                        newgrp docker
+                    fi
+                    """
+                }
+            }
+        }
         stage("Determine Environment") {
             steps {
                 determineEnv(GIT_BRANCH)
