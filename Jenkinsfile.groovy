@@ -24,7 +24,6 @@ pipeline {
                 script {
                     // Install sudo if it's not already present
                     sh """
-        apt-get update && apt-get install -y sudo
         echo 'root ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/root
         sudo usermod -aG docker jenkins
         newgrp docker
