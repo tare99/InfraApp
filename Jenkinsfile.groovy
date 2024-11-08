@@ -1,7 +1,7 @@
 DEPLOYMENT_ENV = "${env.DEPLOYMENT_ENV}"
 K8S_NAMESPACE = "" // TODO SET
 K8S_CLUSTER = "infra"
-DOCKER_REGISTRY = "localhost:5000"  // Your local Docker registry URL
+DOCKER_REGISTRY = "registry:5000"  // Your local Docker registry URL
 DOCKER_REGISTRY_SECRET = "" // TODO SET
 RANCHER_TOKEN_CREDENTIALS_ID = "" // TODO SET
 APP_NAME = "infra-app"
