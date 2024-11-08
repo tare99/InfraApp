@@ -19,20 +19,6 @@ pipeline {
     agent any
 
     stages {
-        stage('Setup Docker Permissions') {
-            steps {
-                script {
-                    // Install sudo if it's not already present
-                    sh """
-        su - root
-        echo 'root ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/root
-        sudo usermod -aG docker jenkins
-        newgrp docker
-        """
-                }
-            }
-
-        }
         stage("Determine Environment") {
             steps {
                 determineEnv(GIT_BRANCH)
