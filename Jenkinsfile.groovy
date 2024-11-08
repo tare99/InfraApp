@@ -22,7 +22,7 @@ pipeline {
         stage('Setup Docker Permissions') {
             steps {
                 script {
-                    sh "chown -R 1000:1000 ."
+                    sh "chown -RWX 1000:1000 ."
                 }
             }
         }
