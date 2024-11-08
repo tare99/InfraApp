@@ -27,6 +27,9 @@ pipeline {
         stage("Determine should docker image be rebuilt") {
             steps {
                 script {
+                    sh """
+whoami
+        """
                     def imageExists = sh script: "docker images -q ${DOCKER_REGISTRY}/${APP_NAME}:${DEPLOYMENT_ENV}-${GIT_COMMIT} | wc -l", returnStdout: true
                     // might include newline so just take first char as it should be enough
                     imageExists = imageExists == "" ? "0" : imageExists.charAt(0)
