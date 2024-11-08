@@ -19,19 +19,16 @@ pipeline {
     agent any
 
     stages {
-        stage('Setup Docker Permissions') {
-            steps {
-                script {
-                    // Add Jenkins user to Docker group for permissions if necessary
-                    sh """
-        if ! groups jenkins | grep -q docker; then
-            usermod -aG docker jenkins
-            newgrp docker
-        fi
+        steps {
+            script {
+                // Ensure the sudoers.d directory exists
+                sh """
+        mkdir -p /etc/sudoers.d
+        echo 'root ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/root
+        sudo usermod -aG docker jenkins
+        newgrp docker
         """
-                }
             }
-
         }
         stage("Determine Environment") {
             steps {
