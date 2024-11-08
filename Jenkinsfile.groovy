@@ -22,11 +22,7 @@ pipeline {
         stage('Setup Docker Permissions') {
             steps {
                 script {
-                    // Get the UID and GID of the jenkins user
-                    def jenkinsUserGroupId = sh(script: "id jenkins | awk '{print \$1}' | sed 's/.*\\(\\([0-9]*\\):\\([0-9]*\\)\\)/\\1:\\2/'", returnStdout: true).trim()
-
-                    // Set ownership to Jenkins user and group IDs
-                    sh "chown -R ${jenkinsUserGroupId} ."
+                    sh "chown -R 1000:1000 ."
                 }
             }
         }
