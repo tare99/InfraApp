@@ -66,10 +66,6 @@ pipeline {
                 }
             }
             steps {
-                /**
-                 * Remove current sports cached packages to force re-download from remote repo
-                 * Required as Jenkins builds of those packages might overwrite versions by installing them into local repository
-                 */
                 sh "unset MAVEN_CONFIG && ./mvnw dependency:purge-local-repository"
                 sh "unset MAVEN_CONFIG && ./mvnw -U -P release -Dmaven.test.skip=true clean install"
                 /**
