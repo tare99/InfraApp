@@ -22,7 +22,13 @@ pipeline {
         stage('Setup Docker Permissions') {
             steps {
                 script {
-                    sh "chown -RWX 1000:1000 ."
+                    // Add Jenkins user to Docker group for permissions if necessary
+                    sh """
+                    if ! groups jenkins | grep -q docker; then
+                        su usermod -aG docker jenkins
+                        newgrp docker
+                    fi
+                    """
                 }
             }
         }
