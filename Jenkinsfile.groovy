@@ -25,7 +25,7 @@ pipeline {
                     // Add Jenkins user to Docker group for permissions if necessary
                     sh """
                     if ! groups jenkins | grep -q docker; then
-                        sudo usermod -aG docker jenkins
+                         usermod -aG docker jenkins
                         newgrp docker
                     fi
                     """
