@@ -67,7 +67,7 @@ pipeline {
             }
             steps {
                 sh "unset MAVEN_CONFIG && ./mvnw dependency:purge-local-repository"
-                sh "unset MAVEN_CONFIG && ./mvnw -U -Dmaven.test.skip=true clean install"
+                sh "unset MAVEN_CONFIG && ./mvnw -U -Dmaven.test.skip=true clean install -Dnet.bytebuddy.experimental=true"
                 /**
                  * Jenkins user/group are 1000/1000
                  * We need to switch permissions after the build to make sure that jenkins workspace can read them
