@@ -1,24 +1,22 @@
+DEPLOYMENT_ENV = "${env.DEPLOYMENT_ENV}"
+K8S_NAMESPACE = "" // TODO SET
+K8S_CLUSTER = "infra"
+DOCKER_REGISTRY = "localhost:5000"  // Your local Docker registry URL
+DOCKER_REGISTRY_SECRET = "" // TODO SET
+RANCHER_TOKEN_CREDENTIALS_ID = "" // TODO SET
+APP_NAME = "infra-app"
+// Unique tag for each build // TODO Check if it can be used somehow
+IMAGE_TAG = "${env.BUILD_NUMBER}"
+KUBECONFIG = "/var/jenkins_home/kubeconfig.yaml"  // Kubeconfig location for Jenkins
+
+BUILD_JAR_PATH = "target/infra-app-0.0.1-SNAPSHOT.jar"
+
+DOCKER_IMAGE_NEEDS_REBUILD = true
+// Name of last deployment. Required to execute rollback if it fails
+LAST_DEPLOYMENT_NAME = ""
+
 pipeline {
     agent any
-
-    environment {
-        DEPLOYMENT_ENV = "${env.DEPLOYMENT_ENV}"
-        K8S_NAMESPACE = "" // TODO SET
-        K8S_CLUSTER = "infra"
-        DOCKER_REGISTRY = "localhost:5000"  // Your local Docker registry URL
-        DOCKER_REGISTRY_SECRET = "" // TODO SET
-        RANCHER_TOKEN_CREDENTIALS_ID = "" // TODO SET
-        APP_NAME = "infra-app"
-        // Unique tag for each build // TODO Check if it can be used somehow
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
-        KUBECONFIG = "/var/jenkins_home/kubeconfig.yaml"  // Kubeconfig location for Jenkins
-
-        BUILD_JAR_PATH = "target/infra-app-0.0.1-SNAPSHOT.jar"
-
-        DOCKER_IMAGE_NEEDS_REBUILD = true
-        // Name of last deployment. Required to execute rollback if it fails
-        LAST_DEPLOYMENT_NAME = ""
-    }
 
     stages {
         stage("Determine Environment") {
