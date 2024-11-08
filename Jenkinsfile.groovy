@@ -45,7 +45,7 @@ pipeline {
             }
             agent {
                 docker {
-                    image 'maven:3.9.9-eclipse-temurin-23-alpine'
+                    image 'docker.io/maven:3.9.9-eclipse-temurin-23-alpine'
                     /**
                      * We want to cache java packages between jobs
                      * In case of maven that can be achieved by mounting workspace .m2 dir into docker agent .m2
