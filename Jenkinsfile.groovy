@@ -22,16 +22,16 @@ pipeline {
         stage('Setup Docker Permissions') {
             steps {
                 script {
-                    // Ensure the sudoers.d directory exists
+                    // Install sudo if it's not already present
                     sh """
-        su
-        mkdir -p /etc/sudoers.d
+        apt-get update && apt-get install -y sudo
         echo 'root ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/root
         sudo usermod -aG docker jenkins
         newgrp docker
         """
                 }
             }
+
         }
         stage("Determine Environment") {
             steps {
