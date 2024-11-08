@@ -37,19 +37,56 @@ pipeline {
                 }
             }
         }
-        stage('Build Docker Image') {
+        stage('Build and publish Docker Image') {
             when {
                 expression {
                     return DOCKER_IMAGE_NEEDS_REBUILD == true
                 }
             }
-            steps {
-                script {
-                    // Build the Docker image
-                    sh "docker build -t ${DOCKER_REGISTRY}/${APP_NAME}:${DEPLOYMENT_ENV}-${GIT_COMMIT} ."
-                    // Push the Docker image to the local Docker registry
-                    sh "docker push ${DOCKER_REGISTRY}/${APP_NAME}:${DEPLOYMENT_ENV}-${GIT_COMMIT}"
+            agent {
+                docker {
+                    image 'maven:3.9.9-eclipse-temurin-23-alpine'
+                    /**
+                     * We want to cache java packages between jobs
+                     * In case of maven that can be achieved by mounting workspace .m2 dir into docker agent .m2
+                     * Official docs state that this config should work
+                     * agent {
+                     *   docker {
+                     *     image 'maven:3.9.9-eclipse-temurin-23-alpine'
+                     *     args '-v /root/.m2:/root/.m2'
+                     *   }
+                     * }
+                     * However I didn't manage to get it working without:
+                     * - Specifying `-u root` in args. Without it image runs with unknown user
+                     * - `:z` flag which sets volume in share mode (so that other containers can build in the same time)
+                     */
+                    //noinspection GroovyAssignabilityCheck
+                    args '-v /root/.m2:/root/.m2:z -u root'
+                    reuseNode true
                 }
+            }
+            steps {
+                generateSettingsXml()
+                /**
+                 * Remove current sports cached packages to force re-download from remote repo
+                 * Required as Jenkins builds of those packages might overwrite versions by installing them into local repository
+                 */
+                sh "unset MAVEN_CONFIG && ./mvnw dependency:purge-local-repository -DmanualInclude=com.nsoft.sports"
+                sh "unset MAVEN_CONFIG && ./mvnw -U -P release -Dmaven.test.skip=true clean install -s .mvn/custom-settings.xml"
+                /**
+                 * Jenkins user/group are 1000/1000
+                 * We need to switch permissions after the build to make sure that jenkins workspace can read them
+                 */
+                sh "chown -R 1000:1000 ."
+                /**
+                 * Stashing only fat jar as it the only thing that gets into build
+                 */
+                stash name: "mavenbuild", includes: "${BUILD_JAR_PATH}"
+            }
+            steps {
+                unstash "mavenbuild"
+                sh "docker build --file=deploy/Dockerfile --no-cache --build-arg app_environment=${DEPLOYMENT_ENV} -t ${DOCKER_REGISTRY}/${APP_NAME}:${DEPLOYMENT_ENV}-${GIT_COMMIT} ."
+                sh "docker push ${DOCKER_REGISTRY}/${APP_NAME}:${DEPLOYMENT_ENV}-${GIT_COMMIT} "
             }
         }
 //        stage('Deploy to Kubernetes') {
